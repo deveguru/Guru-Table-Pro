@@ -12,6 +12,7 @@ Management of information in the table by the site administrator and viewing onl
 Shortcodes 
 .
 .
+
 [guru_table1]
 
 [guru_table2]
