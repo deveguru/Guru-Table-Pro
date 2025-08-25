@@ -2,23 +2,34 @@
 Guru Table management and show with shortcodes for Wordpress
 
 Management of information in the table by the site administrator and viewing only by other users (regular users) with the same shortcode. With 1 shortcode, both the site administrator can manage the information in the tables and users can only view it.
+
 مدیریت و نمایش جدول گورو با کدهای کوتاه برای وردپرس
 
 مدیریت اطلاعات در جدول توسط مدیر سایت و فقط مشاهده توسط کاربران دیگر ( کاربر عادی ) با همان شورتکد، با 1 شورتکد هم مدیر سایت میتواند اطلاعات داخل جداول را مدیریت کند هم کاربران میتوانند فقط مشاهده کنند.
+
 .
 .
 Shortcodes 
 .
 .
 [guru_table1]
+
 [guru_table2]
+
 [guru_table3]
+
 [guru_table4]
+
 [guru_table5]
+
 [guru_table6]
+
 [guru_table7]
+
 [guru_table8]
+
 [guru_table9]
+
 .
 .
 .
