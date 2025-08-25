@@ -5,7 +5,10 @@ Management of information in the table by the site administrator and viewing onl
 مدیریت و نمایش جدول گورو با کدهای کوتاه برای وردپرس
 
 مدیریت اطلاعات در جدول توسط مدیر سایت و فقط مشاهده توسط کاربران دیگر ( کاربر عادی ) با همان شورتکد، با 1 شورتکد هم مدیر سایت میتواند اطلاعات داخل جداول را مدیریت کند هم کاربران میتوانند فقط مشاهده کنند.
+.
+.
 Shortcodes 
+.
 .
 [guru_table1]
 [guru_table2]
@@ -16,6 +19,9 @@ Shortcodes
 [guru_table7]
 [guru_table8]
 [guru_table9]
+.
+.
+.
 
 <img width="960" height="758" alt="1" src="https://github.com/user-attachments/assets/e6d1961a-768a-4e43-b3b0-8172e0683553" />
 
