@@ -8,7 +8,6 @@
  * Plugin URI:https://github.com/deveguru
  */
 
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -57,7 +56,7 @@ class Guru_Table_Pro {
             .guru-table tbody tr:hover { background-color: #e8f5e9 !important; }
             .editable-cell, .editable-header, .editable-title, .editable-text { cursor: pointer !important; min-height: 20px !important; border-radius: 3px !important; }
             .editable-title { display: inline-block; padding: 5px 10px !important; border: 1px dashed #ccc !important; }
-            .editable-text { white-space: pre-wrap; width: 100% !important; padding: 15px !important; margin: 15px 0 !important; background-color: #f9f9f9 !important; border: 1px dashed #ccc !important; line-height: 1.6 !important; font-size: 14px !important; }
+            .editable-text { text-align: center !important; white-space: pre-wrap; width: 100% !important; padding: 15px !important; margin: 15px 0 !important; background-color: #f9f9f9 !important; border: 1px dashed #ccc !important; line-height: 1.6 !important; font-size: 14px !important; }
             .editable-cell:hover, .editable-header:hover, .editable-title:hover, .editable-text:hover { background-color: #f0f8ff !important; box-shadow: 0 0 0 2px #2e7d32 inset; border-color: transparent !important; }
             .editing { padding: 0 !important; }
             .editable-input { width: 100% !important; padding: 8px !important; border: 2px solid #2e7d32 !important; border-radius: 3px !important; font-size: 13px !important; }
