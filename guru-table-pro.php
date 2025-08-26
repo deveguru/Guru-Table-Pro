@@ -8,6 +8,7 @@
  * Plugin URI:https://github.com/deveguru
  */
 
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -54,11 +55,13 @@ class Guru_Table_Pro {
             .guru-table thead th { background-color: #2e7d32 !important; color: white !important; padding: 15px 8px !important; font-weight: bold !important; border-bottom: 2px solid #1b5e20 !important; }
             .guru-table tbody tr:nth-child(even) { background-color: #f9f9f9 !important; }
             .guru-table tbody tr:hover { background-color: #e8f5e9 !important; }
-            .editable-cell, .editable-header, .editable-title { cursor: pointer !important; min-height: 20px !important; border-radius: 3px !important; }
-            .editable-title { display: inline-block; padding: 5px 10px !important; border: 1px dashed #ccc !important; transition: all 0.2s ease-in-out !important; }
-            .editable-cell:hover, .editable-header:hover, .editable-title:hover { background-color: #f0f8ff !important; box-shadow: 0 0 0 2px #2e7d32 inset; border-color: transparent !important; }
+            .editable-cell, .editable-header, .editable-title, .editable-text { cursor: pointer !important; min-height: 20px !important; border-radius: 3px !important; }
+            .editable-title { display: inline-block; padding: 5px 10px !important; border: 1px dashed #ccc !important; }
+            .editable-text { white-space: pre-wrap; width: 100% !important; padding: 15px !important; margin: 15px 0 !important; background-color: #f9f9f9 !important; border: 1px dashed #ccc !important; line-height: 1.6 !important; font-size: 14px !important; }
+            .editable-cell:hover, .editable-header:hover, .editable-title:hover, .editable-text:hover { background-color: #f0f8ff !important; box-shadow: 0 0 0 2px #2e7d32 inset; border-color: transparent !important; }
             .editing { padding: 0 !important; }
             .editable-input { width: 100% !important; padding: 8px !important; border: 2px solid #2e7d32 !important; border-radius: 3px !important; font-size: 13px !important; }
+            .editable-textarea { width: 100% !important; min-height: 100px !important; padding: 10px !important; border: 2px solid #2e7d32 !important; border-radius: 3px !important; font-size: 14px !important; line-height: 1.6 !important; }
             h2 .editable-input { font-size: 24px; padding: 0 5px; font-weight: bold; color: #2e7d32; }
             .action-buttons { width: 100px; }
             .remove-btn { background: #f44336 !important; color: white !important; border: none !important; border-radius: 50% !important; cursor: pointer !important; width: 22px !important; height: 22px !important; font-weight: bold !important; line-height: 22px !important; text-align: center !important; }
@@ -119,22 +122,27 @@ class Guru_Table_Pro {
                     editingCell = cell;
                     originalValue = cell.text().trim();
                     cell.addClass('editing');
-                    var input = $('<input type="text" class="editable-input">');
-                    input.val(originalValue);
-                    cell.html(input);
-                    input.focus();
-                    input.on('blur keydown', function(e) {
-                        if (e.type === 'blur' || e.key === 'Enter') {
+                    var editor;
+                    if (cell.hasClass('editable-text')) {
+                        editor = $('<textarea class="editable-textarea"></textarea>');
+                    } else {
+                        editor = $('<input type="text" class="editable-input">');
+                    }
+                    editor.val(originalValue);
+                    cell.html(editor);
+                    editor.focus();
+                    editor.on('blur', saveEdit);
+                    editor.on('keydown', function(e) {
+                        if (e.key === 'Escape') {
                             e.preventDefault();
-                            saveEdit();
-                        } else if (e.key === 'Escape') {
                             cancelEdit();
                         }
                     });
                 }
                 function saveEdit() {
                     if (!editingCell) return;
-                    var input = editingCell.find('input');
+                    var input = editingCell.find('input, textarea');
+                    if (input.length === 0) return;
                     var newValue = input.val().trim();
                     if (newValue === originalValue) {
                         cancelEdit();
@@ -148,6 +156,9 @@ class Guru_Table_Pro {
                     } else if (editingCell.hasClass('editable-title')) {
                         data.value = newValue;
                         data.type = 'title';
+                    } else if (editingCell.hasClass('editable-text')) {
+                        data.type = editingCell.data('type');
+                        data.value = newValue;
                     } else {
                         data.row_index = editingCell.closest('tr').data('row-index');
                         data.col_id = editingCell.data('col-id');
@@ -164,7 +175,7 @@ class Guru_Table_Pro {
                     editingCell.text(originalValue).removeClass('editing');
                     editingCell = null;
                 }
-                container.on('click', '.editable-cell, .editable-header, .editable-title', function() {
+                container.on('click', '.editable-cell, .editable-header, .editable-title, .editable-text', function() {
                     if ($(this).hasClass('editing')) return;
                     if (editingCell && !editingCell.is($(this))) saveEdit();
                     startEdit($(this));
@@ -200,11 +211,16 @@ class Guru_Table_Pro {
             $default_col_id = 'col_' . uniqid();
             return array(
                 'title'   => 'Editable Table (' . $table_id . ')',
+                'description_top' => 'Click to edit top description.',
                 'headers' => array(array('id' => $default_col_id, 'label' => 'Header 1')),
-                'rows'    => array(array($default_col_id => 'Sample Data'))
+                'rows'    => array(array($default_col_id => 'Sample Data')),
+                'description_bottom' => 'Click to edit bottom description.'
             );
         }
-        return $all_tables[$table_id];
+        return wp_parse_args($all_tables[$table_id], array(
+            'description_top' => '',
+            'description_bottom' => ''
+        ));
     }
 
     private function save_table_data($table_id, $data) {
@@ -217,9 +233,10 @@ class Guru_Table_Pro {
         check_ajax_referer('guru_table_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Permission denied.');
         $table_id = sanitize_key($_POST['table_id']);
-        $value = sanitize_textarea_field($_POST['value']);
+        $value = sanitize_textarea_field(stripslashes($_POST['value']));
         $type = sanitize_text_field($_POST['type']);
         $data = $this->get_table_data($table_id);
+
         if ($type === 'title') {
             $data['title'] = $value;
         } elseif ($type === 'header') {
@@ -230,6 +247,10 @@ class Guru_Table_Pro {
                     break;
                 }
             }
+        } elseif ($type === 'description_top') {
+            $data['description_top'] = $value;
+        } elseif ($type === 'description_bottom') {
+            $data['description_bottom'] = $value;
         } else {
             $row_index = intval($_POST['row_index']);
             $col_id = sanitize_text_field($_POST['col_id']);
@@ -237,6 +258,7 @@ class Guru_Table_Pro {
                 $data['rows'][$row_index][$col_id] = $value;
             }
         }
+
         if ($this->save_table_data($table_id, $data)) {
             wp_send_json_success(['message' => 'Updated successfully.']);
         } else {
@@ -348,6 +370,13 @@ class Guru_Table_Pro {
                 <?php if ($is_admin): ?>
                     <div class="message-bar"></div>
                 <?php endif; ?>
+
+                <?php if ($is_admin || !empty(trim($data['description_top']))): ?>
+                    <div class="editable-text" data-type="description_top">
+                        <?php echo $is_admin ? esc_html($data['description_top']) : nl2br(esc_html($data['description_top'])); ?>
+                    </div>
+                <?php endif; ?>
+                
                 <div class="guru-table-wrapper">
                     <table class="guru-table">
                         <thead>
@@ -366,12 +395,21 @@ class Guru_Table_Pro {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($data['rows'] as $index => $row): ?>
-                                <?php $this->render_table_row($row, $index, $data['headers'], $is_admin); ?>
-                            <?php endforeach; ?>
+                            <?php if (!empty($data['rows']) && is_array($data['rows'])): ?>
+                                <?php foreach ($data['rows'] as $index => $row): ?>
+                                    <?php $this->render_table_row($row, $index, $data['headers'], $is_admin); ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <?php if ($is_admin || !empty(trim($data['description_bottom']))): ?>
+                    <div class="editable-text" data-type="description_bottom">
+                         <?php echo $is_admin ? esc_html($data['description_bottom']) : nl2br(esc_html($data['description_bottom'])); ?>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($is_admin): ?>
                     <div class="loading-overlay"><div class="loading-spinner"></div></div>
                 <?php endif; ?>
